@@ -2,7 +2,6 @@
   "name": "adventofcode",
   "version": "1.0.0",
   "description": "My solutions to Advent of Code 2018",
-  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
