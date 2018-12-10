@@ -72,9 +72,6 @@ function part2(changes) {
     }
 }
 
-/**
- * Parse the input as integers, one on each line
- */
 function parseInput() {
     return fs.readFileSync('input/day01.txt', 'utf8')
         .split('\n')
