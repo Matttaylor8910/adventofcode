@@ -205,24 +205,24 @@ var _ = require('lodash');
  * top left to bottom right and return the position of a crash when one happens
  */
 function part1(paths, carts) {
-    let hash = {};
+    let positions = {};
 
     while (true) {
         // sort the carts by row & col so we move them in the right order
         carts = _.sortBy(carts, ['row', 'col']);
         
         for (let i = 0; i < carts.length; i++) {
-            delete hash[formatPosition(carts[i])];
+            delete positions[formatPosition(carts[i])];
 
             moveCart(carts[i], paths);
 
             // determine if this cart collided with any other carts after being moved
             let newPos = formatPosition(carts[i]);
-            if (hash[newPos]) {
+            if (positions[newPos]) {
                 return formatPosition(carts[i]);
             }
             else {
-                hash[newPos] = carts[i];
+                positions[newPos] = carts[i];
             }
         }
     }
@@ -233,7 +233,7 @@ function part1(paths, carts) {
  * just mark those carts as crashed and continue on until only one cart is left
  */
 function part2(paths, carts) {
-    let hash = {};
+    let positions = {};
 
     while (true) {
         // sort the carts by row & col so we move them in the right order
@@ -241,27 +241,27 @@ function part2(paths, carts) {
         
         for (let i = 0; i < carts.length; i++) {
             if (!carts[i].crashed) {
-                delete hash[formatPosition(carts[i])];
+                delete positions[formatPosition(carts[i])];
 
                 moveCart(carts[i], paths);
 
                 // determine if this cart collided with any other carts after being moved
                 let newPos = formatPosition(carts[i]);
-                if (hash[newPos]) {
+                if (positions[newPos]) {
                     carts[i].crashed = true;
-                    hash[newPos].crashed = true;
-                    delete hash[newPos];
+                    positions[newPos].crashed = true;
+                    delete positions[newPos];
                 }
                 else {
-                    hash[newPos] = carts[i];
+                    positions[newPos] = carts[i];
                 }
             }
         }
 
         // return when we're down to one cart that hasn't crashed
-        let cartPositions = _.keys(hash);
+        let cartPositions = _.keys(positions);
         if (cartPositions.length === 1) {
-            return formatPosition(hash[cartPositions[0]]);
+            return formatPosition(positions[cartPositions[0]]);
         }
     }
 }
