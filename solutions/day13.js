@@ -205,42 +205,63 @@ var _ = require('lodash');
  * top left to bottom right and return the position of a crash when one happens
  */
 function part1(paths, carts) {
+    let hash = {};
+
     while (true) {
         // sort the carts by row & col so we move them in the right order
         carts = _.sortBy(carts, ['row', 'col']);
         
         for (let i = 0; i < carts.length; i++) {
+            delete hash[formatPosition(carts[i])];
+
             moveCart(carts[i], paths);
-            if (anyCollision(carts)) {
+
+            // determine if this cart collided with any other carts after being moved
+            let newPos = formatPosition(carts[i]);
+            if (hash[newPos]) {
                 return formatPosition(carts[i]);
+            }
+            else {
+                hash[newPos] = carts[i];
             }
         }
     }
 }
 
+/**
+ * In part two, rather than instantly returning after the first crash, we instead 
+ * just mark those carts as crashed and continue on until only one cart is left
+ */
 function part2(paths, carts) {
+    let hash = {};
+
     while (true) {
         // sort the carts by row & col so we move them in the right order
         carts = _.sortBy(carts, ['row', 'col']);
         
         for (let i = 0; i < carts.length; i++) {
             if (!carts[i].crashed) {
+                delete hash[formatPosition(carts[i])];
+
                 moveCart(carts[i], paths);
 
                 // determine if this cart collided with any other carts after being moved
-                for (let j = 0; j < carts.length; j++) {
-                    if (i !== j && carts[i].row === carts[j].row && carts[i].col === carts[j].col && !carts[j].crashed) {
-                        carts[i].crashed = true;
-                        carts[j].crashed = true;
-                    }
+                let newPos = formatPosition(carts[i]);
+                if (hash[newPos]) {
+                    carts[i].crashed = true;
+                    hash[newPos].crashed = true;
+                    delete hash[newPos];
+                }
+                else {
+                    hash[newPos] = carts[i];
                 }
             }
         }
 
         // return when we're down to one cart that hasn't crashed
-        let livingCarts = _.filter(carts, c => !c.crashed);
-        if (livingCarts.length === 1) {
-            return formatPosition(livingCarts[0]);
+        let cartPositions = _.keys(hash);
+        if (cartPositions.length === 1) {
+            return formatPosition(hash[cartPositions[0]]);
         }
     }
 }
@@ -292,18 +313,6 @@ function getIntersectionDirection(current) {
         default:
             throw 'ERROR!!';
     }
-}
-
-/**
- * Determine if any of the carts share a position (collided)
- */
-function anyCollision(carts) {
-    return _(carts)
-        .filter(c => !c.crashed)
-        .map(c => c.row + ',' + c.col)
-        .uniq()
-        .value()
-        .length < carts.length;
 }
 
 /**
@@ -388,7 +397,7 @@ function newCart(char, row, col, id) {
 }
 
 // parse input and output answers
-var paths = parseInput('input/day13.txt'); // 0.18s day13_jace, 0.185 day13
+var paths = parseInput('input/day14.txt'); // 0.18s day13_jace, 0.185 day13
 var carts = getCarts(paths);
 console.log(part1(paths, _.cloneDeep(carts)));
-console.log(part2(paths, _.cloneDeep(carts)));
+// console.log(part2(paths, _.cloneDeep(carts)));
