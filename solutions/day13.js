@@ -397,7 +397,7 @@ function newCart(char, row, col, id) {
 }
 
 // parse input and output answers
-var paths = parseInput('input/day14.txt'); // 0.18s day13_jace, 0.185 day13
+var paths = parseInput('input/day13.txt');
 var carts = getCarts(paths);
 console.log(part1(paths, _.cloneDeep(carts)));
-// console.log(part2(paths, _.cloneDeep(carts)));
+console.log(part2(paths, _.cloneDeep(carts)));
