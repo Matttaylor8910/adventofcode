@@ -155,6 +155,48 @@
 // 5  \------/   
 // In this example, the location of the first crash is 7,3.
 
+// --- Part Two ---
+// There isn't much you can do to prevent crashes in this ridiculous system. However, by predicting the crashes, the Elves know where to be in advance and instantly remove the two crashing carts the moment any crash occurs.
+
+// They can proceed like this for a while, but eventually, they're going to run out of carts. It could be useful to figure out where the last cart that hasn't crashed will end up.
+
+// For example:
+
+// />-<\  
+// |   |  
+// | /<+-\
+// | | | v
+// \>+</ |
+//   |   ^
+//   \<->/
+
+// /---\  
+// |   |  
+// | v-+-\
+// | | | |
+// \-+-/ |
+//   |   |
+//   ^---^
+
+// /---\  
+// |   |  
+// | /-+-\
+// | v | |
+// \-+-/ |
+//   ^   ^
+//   \---/
+
+// /---\  
+// |   |  
+// | /-+-\
+// | | | |
+// \-+-/ ^
+//   |   |
+//   \---/
+// After four very expensive crashes, a tick ends with only one cart remaining; its final location is 6,4.
+
+// What is the location of the last cart at the end of the first tick where it is the only cart left?
+
 var fs = require('fs');
 var _ = require('lodash');
 
@@ -177,7 +219,30 @@ function part1(paths, carts) {
 }
 
 function part2(paths, carts) {
-    // TODO
+    while (true) {
+        // sort the carts by row & col so we move them in the right order
+        carts = _.sortBy(carts, ['row', 'col']);
+        
+        for (let i = 0; i < carts.length; i++) {
+            if (!carts[i].crashed) {
+                moveCart(carts[i], paths);
+
+                // determine if this cart collided with any other carts after being moved
+                for (let j = 0; j < carts.length; j++) {
+                    if (i !== j && carts[i].row === carts[j].row && carts[i].col === carts[j].col && !carts[j].crashed) {
+                        carts[i].crashed = true;
+                        carts[j].crashed = true;
+                    }
+                }
+            }
+        }
+
+        // return when we're down to one cart that hasn't crashed
+        let livingCarts = _.filter(carts, c => !c.crashed);
+        if (livingCarts.length === 1) {
+            return formatPosition(livingCarts[0]);
+        }
+    }
 }
 
 /**
@@ -234,6 +299,7 @@ function getIntersectionDirection(current) {
  */
 function anyCollision(carts) {
     return _(carts)
+        .filter(c => !c.crashed)
         .map(c => c.row + ',' + c.col)
         .uniq()
         .value()
@@ -324,5 +390,5 @@ function newCart(char, row, col, id) {
 // parse input and output answers
 var paths = parseInput('input/day13.txt'); // 0.18s day13_jace, 0.185 day13
 var carts = getCarts(paths);
-console.log(part1(paths, carts));
-console.log(part2(paths, carts));
+console.log(part1(paths, _.cloneDeep(carts)));
+console.log(part2(paths, _.cloneDeep(carts)));
